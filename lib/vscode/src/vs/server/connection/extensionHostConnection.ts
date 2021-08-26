@@ -1,5 +1,4 @@
 import { FileAccess } from 'vs/base/common/network';
-import { INativeEnvironmentService } from 'vs/platform/environment/common/environment';
 import { DebugMessage, IRemoteExtensionHostStartParams } from 'vs/platform/remote/common/remoteAgentConnection';
 import { AbstractConnection } from 'vs/server/connection/abstractConnection';
 import { getNlsConfiguration } from 'vs/server/nls';
@@ -11,6 +10,7 @@ import { ExtensionHost, IIPCOptions } from 'vs/base/parts/ipc/node/ipc.cp';
 import { VSBuffer } from 'vs/base/common/buffer';
 import { SendHandle } from 'child_process';
 import { ConsoleLogger } from 'vs/platform/log/common/log';
+import { IEnvironmentServerService } from '../serverEnvironmentService';
 
 export interface ForkEnvironmentVariables {
 	VSCODE_AMD_ENTRYPOINT: string;
@@ -37,7 +37,7 @@ export class ExtensionHostConnection extends AbstractConnection {
 	public readonly _isExtensionDevDebug: boolean;
 	public readonly _isExtensionDevTestFromCli: boolean;
 
-	public constructor(protocol: ServerProtocol, logService: ConsoleLogger, private readonly startParams: IRemoteExtensionHostStartParams, private readonly _environmentService: INativeEnvironmentService) {
+	public constructor(protocol: ServerProtocol, logService: ConsoleLogger, private readonly startParams: IRemoteExtensionHostStartParams, private readonly _environmentService: IEnvironmentServerService) {
 		super(protocol, logService, 'ExtensionHost');
 
 		const devOpts = parseExtensionDevOptions(this._environmentService);

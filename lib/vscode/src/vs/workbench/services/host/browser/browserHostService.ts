@@ -72,11 +72,26 @@ export interface IWorkspaceProvider {
 }
 
 /**
+ * @coder A list of known payload keys.
+ * @remark This should probably be sent upstream to match `BrowserWorkbenchEnvironmentService`
+ * This allows for JSON serialization when passing options to a client.
+ */
+export type PayloadKeys = 'extensionDevelopmentPath'
+	| 'extensionDevelopmentKind'
+	| 'extensionTestsPath'
+	| 'debugRenderer'
+	| 'debugId'
+	| 'inspect-brk-extensions'
+	| 'inspect-extensions'
+	| 'enableProposedApi'
+	| 'userDataPath'
+
+/**
  * @coder Similar to the workspace provider, without `open` helper.
  * This allows for JSON serialization when passing options to a client.
  */
 export interface IServerWorkspaceProvider extends Omit<IWorkspaceProvider, 'open'> {
-	payload: [['userDataPath', string], ['enableProposedApi', string]];
+	payload: Array<[PayloadKeys, string]>;
 }
 
 enum HostShutdownReason {

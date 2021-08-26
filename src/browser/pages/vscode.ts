@@ -1,6 +1,7 @@
 import { NLSConfiguration, InternalNLSConfiguration } from "../../../lib/vscode/src/vs/base/node/languagePacks"
+import { ClientConfiguration } from "../../../lib/vscode/src/vs/server/types"
 
-import { getOptions, CoderOptions } from "../../common/util"
+import { getClientConfiguration } from "../../common/util"
 import { WORKBENCH_WEB_CONFIG_ID } from "../../node/constants"
 import "../register"
 
@@ -81,7 +82,7 @@ export function getNlsConfiguration<T extends NLSConfigurationWeb = NLSConfigura
 
 type GetLoaderParams = {
   nlsConfiguration: NLSConfigurationWeb
-  options: CoderOptions
+  options: ClientConfiguration
   _window: Window
 }
 
@@ -218,7 +219,7 @@ export function main(_document: Document | undefined, _window: Window | undefine
     throw new Error(`localStorage is undefined.`)
   }
 
-  const options = getOptions()
+  const options = getClientConfiguration()
   const nlsConfig = getNlsConfiguration(_document, options.base)
 
   const loader = getConfigurationForLoader({

@@ -3,7 +3,7 @@ import { promises as fs } from "fs"
 import yaml from "js-yaml"
 import * as os from "os"
 import * as path from "path"
-import { Args as VsArgs } from "../../typings/ipc"
+import { NativeParsedArgs } from "../../lib/vscode/src/vs/platform/environment/common/argv"
 import { canConnect, generateCertificate, generatePassword, humanPath, paths } from "./util"
 
 export enum Feature {
@@ -30,7 +30,21 @@ export enum LogLevel {
 
 export class OptionalString extends Optional<string> {}
 
-export interface Args extends VsArgs {
+export interface Args
+  extends Pick<
+    NativeParsedArgs,
+    | "user-data-dir"
+    | "enable-proposed-api"
+    | "extensions-dir"
+    | "builtin-extensions-dir"
+    | "extra-extensions-dir"
+    | "extra-builtin-extensions-dir"
+    | "ignore-last-opened"
+    | "locale"
+    | "log"
+    | "verbose"
+    | "_"
+  > {
   config?: string
   auth?: AuthType
   password?: string

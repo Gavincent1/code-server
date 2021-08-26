@@ -3,6 +3,7 @@
  */
 import { JSDOM } from "jsdom"
 import { InternalNLSConfiguration } from "../../../../lib/vscode/src/vs/base/node/languagePacks"
+import { ClientConfiguration } from "../../../../lib/vscode/src/vs/server/types"
 import {
   getNlsConfiguration,
   getConfigurationForLoader,
@@ -12,7 +13,7 @@ import {
   createBundlePath,
   NLSConfigurationWeb,
 } from "../../../../src/browser/pages/vscode"
-import { WORKBENCH_WEB_CONFIG_ID } from "../../../../src/node/constants"
+import { WORKBENCH_WEB_CONFIG_ID, version as codeServerVersion } from "../../../../src/node/constants"
 
 interface MockWorkbenchConfig {
   nlsConfiguration: Pick<NLSConfigurationWeb, "locale" | "availableLanguages">
@@ -207,10 +208,11 @@ describe("vscode", () => {
       _window = __window
     })
     it("should return a loader object (with undefined trustedTypesPolicy)", () => {
-      const options = {
+      const options: ClientConfiguration = {
         base: ".",
         csStaticBase: "/",
         logLevel: 1,
+        codeServerVersion,
       }
 
       const { nlsConfiguration } = createMockDataSettings()
@@ -263,7 +265,9 @@ describe("vscode", () => {
         base: "/",
         csStaticBase: "/",
         logLevel: 1,
+        codeServerVersion,
       }
+
       const nlsConfig = {
         first: "Jane",
         last: "Doe",

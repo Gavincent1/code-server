@@ -1,20 +1,20 @@
 import { logger } from "@coder/logger"
-import bodyParser from "body-parser"
 import cookieParser from "cookie-parser"
 import * as express from "express"
 import { promises as fs } from "fs"
 import http from "http"
 import * as path from "path"
 import * as tls from "tls"
+import { CreateVSServer } from "../../../lib/vscode/src/vs/server/types"
 import * as pluginapi from "../../../typings/pluginapi"
 import { HttpCode, HttpError } from "../../common/http"
-import { plural } from "../../common/util"
+import { getClientConfiguration, plural } from "../../common/util"
 import { AuthType, DefaultedArgs } from "../cli"
 import { rootPath } from "../constants"
 import { Heart } from "../heart"
 import { ensureAuthenticated, redirect, replaceTemplates } from "../http"
 import { PluginAPI } from "../plugin"
-import { getMediaMime, paths } from "../util"
+import { getMediaMime, loadAMDModule, paths } from "../util"
 import { wrapper } from "../wrapper"
 import * as apps from "./apps"
 import * as domainProxy from "./domainProxy"
@@ -25,7 +25,6 @@ import * as pathProxy from "./pathProxy"
 // static is a reserved keyword.
 import * as _static from "./static"
 import * as update from "./update"
-import * as vscode from "./vscode"
 
 /**
  * Register all routes and middleware.
@@ -124,8 +123,14 @@ export const register = async (
     wrapper.onDispose(() => pluginApi.dispose())
   }
 
-  app.use(bodyParser.json())
-  app.use(bodyParser.urlencoded({ extended: true }))
+  app.use(express.json())
+  app.use(express.urlencoded({ extended: true }))
+
+  const vscodeServerMain = await loadAMDModule<CreateVSServer>("vs/server/entry", "main")
+  const vscodeServer = await vscodeServerMain({
+    ...(),
+    args,
+  })
 
   app.use("/", vscode.router)
   wsApp.use("/", vscode.wsRouter.router)

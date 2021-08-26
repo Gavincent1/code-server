@@ -2,7 +2,6 @@ import { field, logger } from "@coder/logger"
 import * as cp from "child_process"
 import http from "http"
 import * as path from "path"
-import { CliMessage, OpenCommandPipeArgs } from "../../typings/ipc"
 import { plural } from "../common/util"
 import { createApp, ensureAddress } from "./app"
 import { AuthType, DefaultedArgs, Feature } from "./cli"
@@ -13,12 +12,18 @@ import { humanPath, isFile, open } from "./util"
 
 export const runVsCodeCli = (args: DefaultedArgs): void => {
   logger.debug("forking vs code cli...")
-  const vscode = cp.fork(path.resolve(__dirname, "../../lib/vscode/out/vs/server/fork"), [], {
+
+  const vscode = cp.fork(path.resolve(__dirname, "../../lib/vscode/out/bootstrap-fork"), [], {
     env: {
       ...process.env,
       CODE_SERVER_PARENT_PID: process.pid.toString(),
+      VSCODE_AMD_ENTRYPOINT: "cli",
+      VSCODE_PIPE_LOGGING: "true",
+      VSCODE_VERBOSE_LOGGING: "true",
+      VSCODE_HANDLES_UNCAUGHT_ERRORS: "true",
     },
   })
+
   vscode.once("message", (message: any) => {
     logger.debug("got message from VS Code", field("message", message))
     if (message.type !== "ready") {

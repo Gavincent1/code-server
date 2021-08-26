@@ -1,18 +1,4 @@
-/*
- * This file exists in two locations:
- * - src/common/util.ts
- * - lib/vscode/src/vs/server/common/util.ts
- * The second is a symlink to the first.
- */
-
-/**
- * Base options included on every page.
- */
-export interface CoderOptions {
-  base: string
-  csStaticBase: string
-  logLevel: number
-}
+import { ClientConfiguration } from "../../lib/vscode/src/vs/server/types"
 
 /**
  * Split a string up to the delimiter. If the delimiter doesn't exist the first
@@ -67,14 +53,14 @@ export const resolveBase = (base?: string): string => {
 }
 
 /**
- * Get options embedded in the HTML or query params.
+ * Get client-side configuration embedded in the HTML or query params.
  */
-export const getOptions = <T extends CoderOptions>(): T => {
-  let options: T
+export const getClientConfiguration = <T extends ClientConfiguration>(): T => {
+  let config: T
   try {
-    options = JSON.parse(document.getElementById("coder-options")!.getAttribute("data-settings")!)
+    config = JSON.parse(document.getElementById("coder-options")!.getAttribute("data-settings")!)
   } catch (error) {
-    options = {} as T
+    config = {} as T
   }
 
   // You can also pass options in stringified form to the options query
@@ -83,16 +69,16 @@ export const getOptions = <T extends CoderOptions>(): T => {
   const params = new URLSearchParams(location.search)
   const queryOpts = params.get("options")
   if (queryOpts) {
-    options = {
-      ...options,
+    config = {
+      ...config,
       ...JSON.parse(queryOpts),
     }
   }
 
-  options.base = resolveBase(options.base)
-  options.csStaticBase = resolveBase(options.csStaticBase)
+  config.base = resolveBase(config.base)
+  config.csStaticBase = resolveBase(config.csStaticBase)
 
-  return options
+  return config
 }
 
 /**

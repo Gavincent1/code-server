@@ -2,10 +2,11 @@ import { field, logger } from "@coder/logger"
 import * as express from "express"
 import * as expressCore from "express-serve-static-core"
 import qs from "qs"
+import { ClientConfiguration } from "../../lib/vscode/src/vs/server/types"
 import { HttpCode, HttpError } from "../common/http"
-import { normalize, CoderOptions } from "../common/util"
+import { normalize } from "../common/util"
 import { AuthType, DefaultedArgs } from "./cli"
-import { commit, rootPath } from "./constants"
+import { commit, rootPath, version as codeServerVersion } from "./constants"
 import { Heart } from "./heart"
 import { getPasswordMethod, IsCookieValidArgs, isCookieValid, sanitizeString, escapeHtml, escapeJSON } from "./util"
 
@@ -19,16 +20,6 @@ declare global {
   }
 }
 
-export const getServerOptions = (req: express.Request): CoderOptions => {
-  const base = relativeRoot(req)
-
-  return {
-    base,
-    csStaticBase: base + "/static/" + commit + rootPath,
-    logLevel: logger.level,
-  }
-}
-
 /**
  * Replace common variable strings in HTML templates.
  */
@@ -37,8 +28,13 @@ export const replaceTemplates = <T extends object>(
   content: string,
   extraOpts?: Omit<T, "base" | "csStaticBase" | "logLevel">,
 ): string => {
-  const serverOptions = {
-    ...getServerOptions(req),
+  const base = relativeRoot(req)
+
+  const serverOptions: ClientConfiguration = {
+    base,
+    csStaticBase: base + "/static/" + commit + rootPath,
+    logLevel: logger.level,
+    codeServerVersion,
     ...extraOpts,
   }
 

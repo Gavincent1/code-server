@@ -11,6 +11,7 @@ import safeCompare from "safe-compare"
 import * as util from "util"
 import xdgBasedir from "xdg-basedir"
 import { getFirstString } from "../common/util"
+import { vsRootPath } from "./constants"
 
 export interface Paths {
   data: string
@@ -527,3 +528,27 @@ export function escapeHtml(unsafe: string): string {
 
 // TODO: Replace with proper templating system.
 export const escapeJSON = (value: cp.Serializable) => JSON.stringify(value).replace(/"/g, "&quot;")
+
+type AMDModule<T> = { [exportName: string]: T }
+const AMDModules = new Map<string, AMDModule<unknown>>()
+
+/**
+ * Loads AMD module, typically from a compiled VSCode bundle.
+ *
+ * @deprecated This should be gradually phased out as code-server migrates to lib/vscode
+ * @param amdPath Path to module relative to lib/vscode
+ * @param exportName Given name of export in the file
+ */
+export const loadAMDModule = async <T>(amdPath: string, exportName: string): Promise<T> => {
+  let module = AMDModules.get(amdPath)
+
+  if (!module) {
+    module = await new Promise<AMDModule<T>>((resolve, reject) => {
+      require(path.join(vsRootPath, "out/bootstrap-amd")).load(amdPath, resolve, reject)
+    })
+
+    AMDModules.set(amdPath, module)
+  }
+
+  return module[exportName] as T
+}
